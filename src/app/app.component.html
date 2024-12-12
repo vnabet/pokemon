@@ -2,16 +2,6 @@ pokemon
 
 <router-outlet></router-outlet>
 
-<ul>
-  @for (pokemon of pokemonSpecies(); track pokemon.name) {
-    <li>
-      <a>
-        {{ pokemon.name }}
-      </a>
-    </li>
-  }
-</ul>
-
 <table mat-table [dataSource]="pokemonSpecies()" class="mat-elevation-z8">
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef> Nom </th>
