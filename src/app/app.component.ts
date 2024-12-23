@@ -1,23 +1,22 @@
-import {Component, computed, inject, ResourceStatus, Signal} from '@angular/core';
+import {Component, computed, inject, ResourceStatus, signal} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {HttpClient} from '@angular/common/http';
-import {rxResource, toSignal} from '@angular/core/rxjs-interop';
+import {rxResource} from '@angular/core/rxjs-interop';
 import {PokemonSpecies} from './models/pokemon-species';
 import {PokemonResult} from './models/pokemon-result';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
-import {JsonPipe} from '@angular/common';
 
-interface PageSizeOptions {
-  length: number;
+// offset, limit
+
+interface PageOptions {
   pageSize: number;
-  index: number;
-  totalPages: number;
+  pageIndex: number;
 }
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatTableModule, MatPaginatorModule, JsonPipe, MatPaginatorModule],
+  imports: [RouterOutlet, MatTableModule, MatPaginatorModule, MatPaginatorModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -28,21 +27,27 @@ export class AppComponent {
 
   protected ressourceStatus = ResourceStatus;
 
-  protected pokemonSpeciesRessource = rxResource({
-    loader: () => this.#httpClient.get<PokemonResult<PokemonSpecies>>('/pokemon-species'),
+  protected pageOptions = signal<PageOptions>({pageSize: 25, pageIndex: 0});
+
+  #length = 0;
+  protected length = computed<number>(() => {
+    this.#length =  this.pokemonSpeciesRessource.status() === ResourceStatus.Resolved?(this.pokemonSpeciesRessource.value()?.count??0):this.#length;
+    return this.#length;
   })
 
-  //protected pokemonSpeciesResult = toSignal(this.#httpClient.get<PokemonResult<PokemonSpecies>>('/pokemon-species'), {initialValue: {count: 0, next: null, previous: null, results: []}});
-  //protected pokemonSpecies = computed(() => this.pokemonSpeciesResult().results);
+  protected pokemonSpeciesRessource = rxResource({
+    request: this.pageOptions,
+    loader: ({request}) => {
+      const offset = request.pageIndex * request.pageSize;
+      const limit = request.pageSize;
+      return this.#httpClient.get<PokemonResult<PokemonSpecies>>(`/pokemon?offset=${offset}&limit=${limit}`);
+    },
+  })
+
   protected pokemonSpecies = computed(() => this.pokemonSpeciesRessource.value()?.results || []);
 
-  pageSizeOptions:Signal<PageSizeOptions> = computed(() => {
-    const pokemonSpeciesResult = this.pokemonSpeciesRessource.value() || {count: 0, next: null, previous: null, results: []};
-    return {length: pokemonSpeciesResult.count, pageSize: pokemonSpeciesResult.results.length, index: 1, totalPages: Math.ceil(pokemonSpeciesResult.count / pokemonSpeciesResult.results.length)};
-  });
-
   pageEventHandler(page: PageEvent): void {
-    console.log(page);
-
+    this.pageOptions.update((prevState) => ({...prevState, pageSize: page.pageSize, pageIndex: page.pageIndex}));
   }
+
 }

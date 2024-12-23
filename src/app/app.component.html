@@ -4,11 +4,11 @@ pokemon
 
 <div>{{pokemonSpeciesRessource.status()}}</div>
 
-<div>{{pageSizeOptions() | json}}</div>
-
-<mat-paginator [length]="100"
-               [pageSize]="10"
+<mat-paginator [length]="length()"
+               [pageSize]="pageOptions().pageSize"
                [pageSizeOptions]="[5, 10, 25, 100]"
+               [pageIndex]="pageOptions().pageIndex"
+               [showFirstLastButtons]="true"
                [disabled]="pokemonSpeciesRessource.status() !== ressourceStatus.Resolved"
                aria-label="Select page"
 (page)="pageEventHandler($event)">
