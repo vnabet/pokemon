@@ -25,10 +25,13 @@ export class AppComponent {
 
   displayedColumns: string[] = ['name', 'url'];
 
+  // Pour avoir l'énuméré ResourceStatus dans le template
   protected ressourceStatus = ResourceStatus;
 
+  // Page courante
   protected pageOptions = signal<PageOptions>({pageSize: 25, pageIndex: 0});
 
+  // Ressource pour récupérer les pokemons
   protected pokemonSpeciesRessource = rxResource({
     request: this.pageOptions,
     loader: ({request}) => {
@@ -38,19 +41,24 @@ export class AppComponent {
     },
   })
 
+  // Nombre total de pokemons
   #length = 0;
   protected length = computed<number>(() => {
     this.#length =  this.pokemonSpeciesRessource.status() === ResourceStatus.Resolved?(this.pokemonSpeciesRessource.value()?.count??0):this.#length;
     return this.#length;
   })
 
+  // Liste des pokemons
   #pokemonSpecies:PokemonSpecies[] = [];
   protected pokemonSpecies = computed(() => {
     this.#pokemonSpecies =  this.pokemonSpeciesRessource.status() === ResourceStatus.Resolved?(this.pokemonSpeciesRessource.value()?.results??[]):this.#pokemonSpecies;
     return this.#pokemonSpecies;
   });
 
+  // Gestionnaire de changement de page
   pageEventHandler(page: PageEvent): void {
+    // Mise à jour de la page courante
+    // Cela va déclencher le rechargement de la ressource
     this.pageOptions.update((prevState) => ({...prevState, pageSize: page.pageSize, pageIndex: page.pageIndex}));
   }
 
