@@ -29,12 +29,6 @@ export class AppComponent {
 
   protected pageOptions = signal<PageOptions>({pageSize: 25, pageIndex: 0});
 
-  #length = 0;
-  protected length = computed<number>(() => {
-    this.#length =  this.pokemonSpeciesRessource.status() === ResourceStatus.Resolved?(this.pokemonSpeciesRessource.value()?.count??0):this.#length;
-    return this.#length;
-  })
-
   protected pokemonSpeciesRessource = rxResource({
     request: this.pageOptions,
     loader: ({request}) => {
@@ -44,7 +38,17 @@ export class AppComponent {
     },
   })
 
-  protected pokemonSpecies = computed(() => this.pokemonSpeciesRessource.value()?.results || []);
+  #length = 0;
+  protected length = computed<number>(() => {
+    this.#length =  this.pokemonSpeciesRessource.status() === ResourceStatus.Resolved?(this.pokemonSpeciesRessource.value()?.count??0):this.#length;
+    return this.#length;
+  })
+
+  #pokemonSpecies:PokemonSpecies[] = [];
+  protected pokemonSpecies = computed(() => {
+    this.#pokemonSpecies =  this.pokemonSpeciesRessource.status() === ResourceStatus.Resolved?(this.pokemonSpeciesRessource.value()?.results??[]):this.#pokemonSpecies;
+    return this.#pokemonSpecies;
+  });
 
   pageEventHandler(page: PageEvent): void {
     this.pageOptions.update((prevState) => ({...prevState, pageSize: page.pageSize, pageIndex: page.pageIndex}));
