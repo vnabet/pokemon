@@ -4,15 +4,11 @@ import {HttpClient} from '@angular/common/http';
 import {rxResource} from '@angular/core/rxjs-interop';
 import {PokemonSpecies} from './models/pokemon-species';
 import {PokemonResult} from './models/pokemon-result';
+import {PageOptions} from './models/page-options';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 
 // offset, limit
-
-interface PageOptions {
-  pageSize: number;
-  pageIndex: number;
-}
 
 @Component({
   selector: 'app-root',
