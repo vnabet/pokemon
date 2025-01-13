@@ -7,6 +7,7 @@ import {PokemonResult} from './models/pokemon-result';
 import {PageOptions} from './models/page-options';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {PokemonsStore} from './store/pokemons.store';
 
 // offset, limit
 
@@ -14,10 +15,13 @@ import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
   selector: 'app-root',
   imports: [RouterOutlet, MatTableModule, MatPaginatorModule, MatPaginatorModule],
   templateUrl: './app.component.html',
+  providers: [PokemonsStore],
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
   readonly #httpClient = inject(HttpClient);
+
+  readonly #pokemonsStore = inject(PokemonsStore);
 
   displayedColumns: string[] = ['name', 'url'];
 
@@ -56,6 +60,8 @@ export class AppComponent {
     // Mise à jour de la page courante
     // Cela va déclencher le rechargement de la ressource
     this.pageOptions.update((prevState) => ({...prevState, pageSize: page.pageSize, pageIndex: page.pageIndex}));
+
   }
+
 
 }
