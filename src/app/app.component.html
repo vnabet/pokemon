@@ -2,18 +2,18 @@ pokemon
 
 <router-outlet></router-outlet>
 
-<div>{{pokemonSpeciesRessource.status()}}</div>
+<div>Is Loading: {{pokemonsStore.isLoading()}}</div>
 
-<mat-paginator [length]="length()"
-               [pageSize]="pageOptions().pageSize"
+<mat-paginator [length]="pokemonsStore.speciesCount()"
+               [pageSize]="pokemonsStore.pageOption().pageSize"
                [pageSizeOptions]="[5, 10, 25, 100]"
-               [pageIndex]="pageOptions().pageIndex"
+               [pageIndex]="pokemonsStore.pageOption().pageIndex"
                [showFirstLastButtons]="true"
-               [disabled]="pokemonSpeciesRessource.status() !== ressourceStatus.Resolved"
+               [disabled]="pokemonsStore.isLoading()"
                aria-label="Select page"
 (page)="pageEventHandler($event)">
 </mat-paginator>
-<table mat-table [dataSource]="pokemonSpecies()" class="mat-elevation-z8">
+<table mat-table [dataSource]="pokemonsStore.speciesEntities()" class="mat-elevation-z8">
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef> Nom </th>
     <td mat-cell *matCellDef="let element"> {{element.name}} </td>

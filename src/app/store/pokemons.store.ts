@@ -1,8 +1,8 @@
-import {patchState, signalStore, type, withHooks, withMethods, withProps, withState} from '@ngrx/signals';
+import {patchState, signalStore, type, withComputed, withHooks, withMethods, withProps, withState} from '@ngrx/signals';
 import {PokemonSpecies} from '../models/pokemon-species';
-import {addEntity, removeAllEntities, SelectEntityId, setAllEntities, withEntities} from '@ngrx/signals/entities';
+import {removeAllEntities, SelectEntityId, setAllEntities, withEntities} from '@ngrx/signals/entities';
 import {PageOptions} from '../models/page-options';
-import {effect, inject, signal} from '@angular/core';
+import {computed, effect, inject, ResourceStatus} from '@angular/core';
 import {PokemonService} from '../services/pokemon.service';
 import {rxResource} from '@angular/core/rxjs-interop';
 
@@ -30,12 +30,13 @@ export const PokemonsStore = signalStore(
       loader: ({request}) => store._pokemonService.getSpecies(request),
     })
   })),
-
-  /*withMethods((store) => ({
-    resetSpecies() {
-      patchState(store, addEntity({name:'jlkjl', url:'jkjjjj'}, { selectId, collection: 'species' }));
-    }
-  })),*/
+  withComputed((store) => ({
+    isLoading: computed(() => store._pokemonSpeciesRessource.isLoading()),
+    speciesCount: computed(() => store._pokemonSpeciesRessource.status() === ResourceStatus.Resolved ? store._pokemonSpeciesRessource.value()?.count ?? 0 : 0),
+  })),
+  withMethods((store) => ({
+    getPage: (pageOptions: PageOptions) => patchState(store, {pageOption: pageOptions}),
+  })),
   withHooks({
     onInit(store) {
       effect(() => {
